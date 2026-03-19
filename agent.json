@@ -1,0 +1,24 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "VeilTrader",
+  "description": "VeilTrader is a fully autonomous, privacy-first AI trading agent on Base (Ethereum). It privately analyzes any user’s DeFi portfolio using a no-data-retention LLM (Venice/Groq/Bankr fallback), makes risk-aware trade decisions, executes real Uniswap V3 swaps using the official Uniswap Developer Platform API + on-chain router, posts reputation updates to the ERC-8004 Reputation Registry, and only publishes verifiable transaction proofs. After one-time setup it runs forever with zero human intervention. Built to win Venice 'Private Agents, Trusted Actions', Uniswap 'Agentic Finance', Bankr 'Best LLM Gateway', Protocol Labs 'Agents With Receipts — ERC-8004' + 'Let the Agent Cook', and Synthesis Open Track.",
+  "image": "https://raw.githubusercontent.com/base-org/brand-kit/main/logo/base-logo-in-blue.png",
+  "services": [
+    {"name": "web", "endpoint": "https://example.com"},
+    {"name": "A2A", "endpoint": "https://example.com/.well-known/agent-card.json", "version": "0.3.0"},
+    {"name": "MCP", "endpoint": "https://example.com/mcp", "version": "2025-06-18"},
+    {"name": "dashboard", "endpoint": "https://example.com/dashboard", "version": "streamlit-1"}
+  ],
+  "x402Support": false,
+  "active": true,
+  "registrations": [
+    {
+      "agentId": 0,
+      "agentRegistry": "eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+      "txHash": "PENDING_REGISTRATION",
+      "chainExplorer": "https://basescan.org/tx/PENDING_REGISTRATION"
+    }
+  ],
+  "supportedTrust": ["reputation", "crypto-economic"],
+  "wallets": {"base": "0x0000000000000000000000000000000000000000"}
+}
