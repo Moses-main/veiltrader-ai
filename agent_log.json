@@ -3,7 +3,10 @@
     "timestamp": "2026-03-19T00:00:00Z",
     "reasoning_summary": "Bootstrap example only. The live agent never stores raw balances or prompts.",
     "decision": "NO_TRADE",
+    "llm_provider": "local_failsafe",
+    "trade_status": "skipped",
     "trade_tx": null,
+    "reputation_status": "skipped",
     "reputation_tx": null,
     "bankr_budget_usd": 0.0
   }

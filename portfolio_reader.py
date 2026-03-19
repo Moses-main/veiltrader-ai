@@ -1,21 +1,25 @@
-"""Read a Base wallet portfolio without logging raw balances."""
+"""Reads a Base wallet and returns a redacted summary for the private LLM."""
 from __future__ import annotations
+
 from common import ERC20_ABI, TOKENS, env, w3
 
+
 def read_portfolio() -> dict:
-    client = w3(); wallet = env("TRADER_ADDRESS")
-    if not wallet: raise RuntimeError("Missing TRADER_ADDRESS")
-    holdings = {}
-    eth = float(client.from_wei(client.eth.get_balance(wallet), "ether"))
-    holdings["ETH"] = {"amount": eth, "address": None}
+    client, wallet = w3(), env("TRADER_ADDRESS")
+    if not wallet:
+        raise RuntimeError("Missing TRADER_ADDRESS")
+    holdings = {"ETH": {"amount": float(client.from_wei(client.eth.get_balance(wallet), "ether")), "address": None}}
     for symbol, meta in TOKENS.items():
-        if not meta["address"]: continue
-        token = client.eth.contract(address=meta["address"], abi=ERC20_ABI)
-        raw = token.functions.balanceOf(wallet).call()
+        if not meta["address"]:
+            continue
+        raw = client.eth.contract(address=meta["address"], abi=ERC20_ABI).functions.balanceOf(wallet).call()
         holdings[symbol] = {"amount": raw / (10 ** meta["decimals"]), "address": meta["address"]}
-    liquid = {k: round(v["amount"], 6) for k, v in holdings.items() if v["amount"] > 0}
-    summary = "Portfolio summary only: " + ", ".join(f"{k}={v}" for k, v in liquid.items()) if liquid else "Portfolio summary only: no tracked balances."
-    return {"wallet": wallet, "holdings": holdings, "summary": summary}
+    tracked = {symbol: round(item["amount"], 6) for symbol, item in holdings.items() if item["amount"] > 0}
+    total = sum(tracked.values()) or 1.0
+    weights = {symbol: round((amount / total) * 100, 2) for symbol, amount in tracked.items()}
+    summary = "Tracked Base assets: " + (", ".join(f"{s} {weights[s]}% ({tracked[s]})" for s in tracked) if tracked else "none")
+    return {"wallet": wallet, "holdings": holdings, "tracked": tracked, "weights": weights, "summary": summary}
+
 
 if __name__ == "__main__":
     print(read_portfolio()["summary"])
