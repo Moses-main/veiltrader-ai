@@ -272,221 +272,403 @@ async def trade_signal(authorization: str = Header(None)):
 
 ### Technical Architecture for Tracks
 
-```mermaid
-flowchart TB
-    subgraph Synthesis["Synthesis Tracks"]
-        Open[Open Track]
-        Uni[Uniswap]
-        Venice[Venice]
-        Bankr[Bankr]
-        ERC8004[ERC-8004]
-        Cook[Let Agent Cook]
-        Base[Base]
-        X402[x402]
-    end
-
-    subgraph Implementation
-        main["main.py<br/>Hourly Loop + API"]
-        core["core.py<br/>Business Logic"]
-        llm["llm_brain.py<br/>Multi-Provider LLM"]
-        swap["uniswap_executor.py<br/>Uniswap V3"]
-        rep["reputation_manager.py<br/>ERC-8004"]
-        reg["register_agent.py<br/>Identity"]
-    end
-
-    Open --> main
-    Uni --> swap
-    Venice --> llm
-    Bankr --> llm
-    ERC8004 --> rep
-    ERC8004 --> reg
-    Cook --> main
-    Base --> common
-    X402 --> main
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          SYNTHESIS HACKATHON TRACKS                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────┐                                                        │
+│  │  Open Track     │─────────────────────────────────────────────────────┐  │
+│  └────────┬────────┘                                                     │  │
+│           │                                                              │  │
+│  ┌────────┴────────┐   ┌─────────────────┐   ┌───────────────────────┐   │  │
+│  │  Uniswap        │   │  Venice         │   │  Bankr                 │   │  │
+│  │  Agentic Finance│   │  Private Agents │   │  Best LLM Gateway      │   │  │
+│  └────────┬────────┘   └────────┬────────┘   └───────────┬───────────┘   │  │
+│           │                      │                       │               │  │
+│  ┌────────┴────────┐   ┌────────┴────────┐   ┌───────────┴───────────┐   │  │
+│  │  Protocol Labs   │   │  Protocol Labs │   │  Base                  │   │  │
+│  │  ERC-8004       │   │  Let Agent Cook│   │  Self-Sustaining       │   │  │
+│  └────────┬────────┘   └────────┬────────┘   └───────────┬───────────┘   │  │
+│           │                      │                       │               │  │
+│  ┌────────┴────────┐                                     │               │  │
+│  │  x402           │─────────────────────────────────────┘               │  │
+│  │  Agent Commerce │                                                     │  │
+│  └────────┬────────┘                                                     │  │
+│           │                                                              │  │
+└───────────┼──────────────────────────────────────────────────────────────┘  │
+            │                                                               │
+            ▼                                                               │
+┌───────────────────────────────────────────────────────────────────────────┐
+│                        IMPLEMENTATION LAYER                                │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│   ┌─────────────────────────────────────────────────────────────────┐    │
+│   │                         main.py                                  │    │
+│   │              FastAPI Server + Hourly Loop + x402                 │    │
+│   └─────────────────────────────┬───────────────────────────────────┘    │
+│                                 │                                         │
+│   ┌─────────────────────────────┴───────────────────────────────────┐    │
+│   │                         core.py                                 │    │
+│   │                   Business Logic & Decision Engine               │    │
+│   └─────────────────────────────┬───────────────────────────────────┘    │
+│                                 │                                         │
+│   ┌─────────────┬───────────────┼───────────────┬─────────────────┐      │
+│   │             │               │               │                 │      │
+│   ▼             ▼               ▼               ▼                 ▼      │
+│ ┌────────┐  ┌──────────┐  ┌────────────┐  ┌────────────────┐  ┌────────┐ │
+│ │llm_   │  │portfolio │  │ uniswap_   │  │reputation_    │  │register│ │
+│ │brain  │  │_reader   │  │ executor   │  │manager        │  │_agent  │ │
+│ │       │  │          │  │            │  │               │  │        │ │
+│ │ -Groq │  │ -USDC   │  │ -Uniswap  │  │ -ERC-8004    │  │ -Id    │ │
+│ │ -Venice│ │ -WETH   │  │ V3 Swap   │  │ -Identity    │  │ -Reg   │ │
+│ │ -Bankr│  │ -Redact │  │ -Quote    │  │ -Reputation  │  │        │ │
+│ └────────┘  └──────────┘  └────────────┘  └────────────────┘  └────────┘ │
+│                                                                           │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Architecture
 
-```mermaid
-graph TB
-    subgraph Client["Client Layer"]
-        WEB[("Web App<br/>veiltrader-ai.replit.app")]
-        PAID[("Paid Client<br/>$0.1 USDC")]
-    end
+### System Architecture
 
-    subgraph Core["VeilTrader AI Core"]
-        MAIN["main.py<br/>FastAPI + x402 Service"]
-        CORE["core.py<br/>Trading Logic"]
-        
-        subgraph Modules["Agent Modules"]
-            LLM["llm_brain.py<br/>Decision Engine"]
-            PORTFOLIO["portfolio_reader.py<br/>Balance Reader"]
-            SWAP["uniswap_executor.py<br/>Trade Executor"]
-            REPUTE["reputation_manager.py<br/>ERC-8004"]
-            REGISTER["register_agent.py<br/>Identity"]
-        end
-    end
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          VELTRADER AI                                  │
+│                  Privacy-First Autonomous Trading Agent                  │
+└─────────────────────────────────────────────────────────────────────────┘
 
-    subgraph LLM["LLM Providers (Fallback Chain)"]
-        GROQ["Groq<br/>Primary - gsk_ keys"]
-        VENICE["Venice<br/>Fallback"]
-        BANKR["Bankr<br/>Fallback"]
-    end
-
-    subgraph Blockchain["Base Network"]
-        UNI["Uniswap V3<br/>Swap Router"]
-        ERC8004["ERC-8004<br/>Reputation Registry"]
-        USDC["USDC Token"]
-        WETH["WETH Token"]
-    end
-
-    WEB -->|"Portfolio Query"| MAIN
-    PAID -->|"POST /trade-signal| MAIN
-    
-    MAIN --> CORE
-    CORE --> LLM
-    CORE --> PORTFOLIO
-    CORE --> SWAP
-    CORE --> REPUTE
-    
-    LLM --> GROQ
-    LLM --> VENICE
-    LLM --> BANKR
-    
-    SWAP --> UNI
-    SWAP --> USDC
-    SWAP --> WETH
-    
-    REPUTE --> ERC8004
-    REGISTER --> ERC8004
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           CLIENT LAYER                                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────┐    ┌─────────────────────────────────────┐   │
+│  │   Web Dashboard     │    │        Paid API Clients             │   │
+│  │  (Streamlit/Replit)│    │     (x402 @trade-signal)            │   │
+│  └─────────┬───────────┘    └──────────────────┬──────────────────┘   │
+└────────────┼───────────────────────────────────┼──────────────────────┘
+             │                                   │
+             ▼                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          MAIN.PY                                       │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────────────┐   │
+│  │  FastAPI Server │  │  Hourly Loop   │  │   x402 Payment Svc    │   │
+│  │  - /health     │  │  - Portfolio   │  │   - Bearer Token      │   │
+│  │  - /trade-signal│  │  - Decision    │  │   - $0.1 USDC         │   │
+│  └───────┬────────┘  └───────┬────────┘  └───────────┬────────────┘   │
+└──────────┼───────────────────┼────────────────────────┼────────────────┘
+           │                   │                        │
+           ▼                   ▼                        ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           CORE.PY                                       │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │                    Trading Decision Engine                       │   │
+│  │   ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │   │
+│  │   │ LLM Brain  │  │ Portfolio   │  │  Trade Validator        │ │   │
+│  │   │ - Groq     │  │ Reader      │  │  - Confidence >= 70%   │ │   │
+│  │   │ - Venice   │  │ - USDC/WETH │  │  - Amount <= 5%        │ │   │
+│  │   │ - Bankr    │  │ - Redacted  │  │  - Slippage <= 1%      │ │   │
+│  │   └──────┬──────┘  └──────┬──────┘  └────────────┬────────────┘ │   │
+│  └──────────┼─────────────────┼─────────────────────┼───────────────┘   │
+└─────────────┼─────────────────┼─────────────────────┼──────────────────┘
+              │                 │                     │
+              ▼                 ▼                     ▼
+┌─────────────────────┐  ┌─────────────────┐  ┌──────────────────────────┐
+│    LLM PROVIDERS    │  │  BLOCKCHAIN     │  │   EXECUTION LAYER        │
+├─────────────────────┤  ├─────────────────┤  ├──────────────────────────┤
+│                     │  │                 │  │                          │
+│  ┌────────────────┐ │  │  Base Network   │  │  ┌────────────────────┐  │
+│  │ 1. Groq (Pri)  │ │  │  - Mainnet 8453│  │  │  Uniswap Executor  │  │
+│  │ 2. Venice      │ │  │  - Sepolia 84532│  │  │  - Get Quote      │  │
+│  │ 3. Bankr       │ │  │                 │  │  │  - Sign & Execute │  │
+│  └────────────────┘ │  │  Tokens:        │  │  │  - USDC/WETH Swap │  │
+│                     │  │  - USDC         │  │  └─────────┬──────────┘  │
+│  LLM FALLBACK CHAIN │  │  - WETH         │  │            │             │
+│                     │  │  - wstETH       │  │            ▼             │
+└─────────────────────┘  └─────────────────┘  │  ┌────────────────────┐  │
+                                               │  │ ERC-8004 Manager  │  │
+                                               │  │ - Post Reputation │  │
+                                               │  │ - Identity Reg    │  │
+                                               │  └────────────────────┘  │
+                                               └────────────────────────────┘
 ```
 
-### Component Flow
+### Component Data Flow
 
-```mermaid
-flowchart LR
-    subgraph Input
-        A[Portfolio Data]
-        B[LLM Query]
-    end
+```
+┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+│ Portfolio │ ──▶ │ Redact   │ ──▶ │ LLM      │ ──▶ │ Validate │ ──▶ │ Execute  │
+│  Reader   │     │  Data    │     │ Decision │     │  Trade   │     │  Swap    │
+└──────────┘     └──────────┘     └──────────┘     └──────────┘     └────┬─────┘
+                                                                        │
+                    ┌────────────────────────────────────────────────────┘
+                    ▼
+              ┌──────────┐     ┌──────────┐     ┌──────────┐
+              │ Reputation│ ──▶ │  Log    │ ──▶ │  Sleep   │
+              │  Update   │     │ Activity│     │  1 Hour  │
+              └──────────┘     └──────────┘     └──────────┘
+```
 
-    subgraph Process
-        C[Read On-Chain]
-        D[Redact Data]
-        E[LLM Decision]
-        F[Validate Trade]
-        G[Execute Swap]
-        H[Post Reputation]
-    end
+### LLM Provider Fallback Chain
 
-    subgraph Output
-        I[Transaction Hash]
-        J[Reputation Update]
-        K[Activity Log]
-    end
+```
+Request ──▶ Groq Available? ──▶ YES ──▶ Process with Groq ──▶ Return Decision
+              │
+              ▼ NO
+         Venice Available? ──▶ YES ──▶ Process with Venice ──▶ Return Decision
+              │
+              ▼ NO
+         Bankr Available? ──▶ YES ──▶ Process with Bankr ──▶ Return Decision
+              │
+              ▼ NO
+         Error: No LLM Provider Available
+```
 
-    A --> C
-    B --> D
-    C --> D
-    D --> E
-    E --> F
-    F -->|Valid| G
-    F -->|Invalid| K
-    G --> H
-    G --> I
-    H --> J
-    H --> K
+### Trade Execution Flow
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        TRADE EXECUTION CYCLE                           │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  1. READ PORTFOLIO                                                     │
+│     └─▶ Query USDC balance, WETH balance on Base                       │
+│                                                                        │
+│  2. REDACT DATA                                                        │
+│     └─▶ Mask wallet addresses before LLM analysis                      │
+│                                                                        │
+│  3. LLM DECISION                                                       │
+│     └─▶ Groq/Venice/Bankr returns: {action, confidence, rationale}     │
+│                                                                        │
+│  4. VALIDATE TRADE                                                     │
+│     ├─▶ Confidence >= 70%?                                             │
+│     ├─▶ Amount <= 5% of portfolio?                                    │
+│     └─▶ Slippage <= 1%?                                                │
+│                                                                        │
+│  5. EXECUTE (if valid)                                                 │
+│     ├─▶ Get quote from Uniswap API                                     │
+│     ├─▶ Sign transaction with wallet                                    │
+│     ├─▶ Execute swap on Base                                           │
+│     └─▶ Wait for confirmation                                           │
+│                                                                        │
+│  6. POST REPUTATION                                                    │
+│     ├─▶ Rate trade 2-5 stars                                           │
+│     ├─▶ Record P&L                                                     │
+│     └─▶ Post to ERC-8004 Registry                                      │
+│                                                                        │
+│  7. LOG & SLEEP                                                        │
+│     └─▶ Log to agent_log.json, sleep 1 hour, repeat                    │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### System Flow
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Agent as VeilTrader AI
-    participant LLM as LLM Provider
-    participant Uniswap as Uniswap V3
-    participant Registry as ERC-8004
-    participant Chain as Base Network
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         TRADING CYCLE SEQUENCE                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 
-    Note over Agent: Hour 0: Trading Cycle Begins
+ Hour 0: Trading Cycle Begins
+ │
+ ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Agent ───────────────▶ Chain: Read Portfolio Balances                        │
+│                              ◀─────────────── USDC: $500, WETH: 0.1        │
+└─────────────────────────────────────────────────────────────────────────────┘
+ │
+ ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Agent ───────────────▶ LLM: Get Trading Decision (redacted)                │
+│                              ◀─────────────── BUY WETH, 85% confidence     │
+└─────────────────────────────────────────────────────────────────────────────┘
+ │
+ ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        CONFIDENCE >= 70%?                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+         │
+    ┌────┴────┐
+    │YES      │NO
+    ▼         ▼
+┌────────────────┐  ┌────────────────┐
+│ Execute Swap   │  │ Skip Trade     │
+│ Agent─────────▶│  │ Log HOLD       │
+│    Uniswap     │  │                │
+└───────┬────────┘  └────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Swap 25 USDC ───────────▶ Chain: Execute on Uniswap V3                      │
+│                        ◀─────────────── Transaction Receipt                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Agent ───────────────▶ Registry: Post Feedback (Rating: 5, P&L: +$2.50)    │
+│                              ◀─────────────── Confirmation                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Agent: Log Activity                                                          │
+│                                                                              │
+│ Sleep 1 Hour ────────────▶ (Repeat Cycle)                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
 
-    Agent->>Chain: Read Portfolio Balances
-    Chain-->>Agent: USDC: $500, WETH: 0.1
+ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+                              x402 PAYMENT REQUEST
+ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
 
-    Agent->>LLM: Get Trading Decision (redacted)
-    LLM-->>Agent: BUY WETH, 85% confidence
-
-    alt Confidence >= 70%
-        Agent->>Uniswap: Execute Swap
-        Uniswap->>Chain: Swap 25 USDC → 0.008 WETH
-        Chain-->>Uniswap: Transaction Receipt
-
-        Agent->>Registry: Post Feedback
-        Registry->>Chain: Rating: 5, P&L: +$2.50
-        Chain-->>Registry: Confirmation
-
-        Agent->>Agent: Log Activity
-    else Confidence < 70%
-        Agent->>Agent: Skip Trade, Log HOLD
-    end
-
-    Note over Agent: Sleep 1 Hour, Repeat
-
-    alt x402 Payment Request
-        User->>Agent: POST /trade-signal (Bearer token)
-        Agent->>Agent: Validate Payment
-        Agent->>LLM: Get Decision (no portfolio)
-        Agent-->>User: {recommendation, confidence}
-    end
+ User ───▶ Agent: POST /trade-signal (Bearer token + 0.1 USDC)
+              │
+              ▼
+         Validate Token
+              │
+              ▼
+         ┌────────┐
+         │ Valid? │
+         └────┬───┘
+         ┌────┴────┐
+         │YES      │NO
+         ▼         ▼
+   ┌──────────┐  ┌──────────────┐
+   │Get Decision│  │ 402 Error    │
+   │from LLM   │  │ Returned      │
+   └─────┬────┘  └──────────────┘
+         │
+         ▼
+   ┌──────────────────────────────────────┐
+   │ Return {recommendation, confidence}  │
+   └──────────────────────────────────────┘
 ```
 
 ### Trading Decision Flow
 
-```mermaid
-flowchart TD
-    A[Start Trading Cycle] --> B{Read Portfolio}
-    B --> C[Get Balances: USDC, WETH]
-    C --> D[Redact Sensitive Data]
-    D --> E[Query LLM Provider]
-    
-    E --> F{Provider Available?}
-    F -->|Groq| G[Process with Groq]
-    F -->|Venice| H[Process with Venice]
-    F -->|Bankr| I[Process with Bankr]
-    F -->|Ollama| J[Process with Ollama]
-    F -->|All Fail| K[Demo Mode]
-    
-    G --> L[Parse Decision]
-    H --> L
-    I --> L
-    J --> L
-    K --> L
-    
-    L --> M{Confidence >= 70%?}
-    M -->|No| N[HOLD - Log & Skip]
-    M -->|Yes| O{Decision = BUY?}
-    
-    O -->|Yes| P[Swap USDC → WETH]
-    O -->|No| Q{Decision = SELL?}
-    Q -->|Yes| R[Swap WETH → USDC]
-    Q -->|No| N
-    
-    P --> S[Execute on Uniswap]
-    R --> S
-    S --> T{Success?}
-    
-    T -->|Yes| U[Post ERC-8004 Reputation]
-    T -->|No| V[Log Error]
-    
-    U --> W[Log Activity]
-    V --> W
-    N --> W
-    
-    W --> X[Sleep 1 Hour]
-    X --> A
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      TRADING DECISION FLOWCHART                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                           ┌─────────────────┐
+                           │  Start Trading  │
+                           │     Cycle       │
+                           └────────┬────────┘
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │  Read Portfolio │
+                           │ Get USDC/WETH   │
+                           └────────┬────────┘
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │ Redact Sensitive│
+                           │     Data        │
+                           └────────┬────────┘
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │  Query LLM      │
+                           │    Provider     │
+                           └────────┬────────┘
+                                    │
+                          ┌─────────┴─────────┐
+                          │                   │
+                          ▼                   ▼
+                    ┌───────────┐       ┌───────────┐
+                    │Groq?      │       │Venice?    │
+                    │ Available │NO     │ Available │
+                    └─────┬─────┘       └─────┬─────┘
+                    ┌─────┴─────┐             │
+                    │YES        │             ▼
+                    ▼           │       ┌───────────┐
+              ┌───────────┐     │       │Bankr?     │
+              │Process    │     │       │ Available │
+              │with Groq  │     │       └─────┬─────┘
+              └─────┬─────┘     │       ┌─────┴─────┐
+                    │           │       │YES        │NO
+                    │           │       ▼           ▼
+                    │     ┌─────┴───┐ ┌─────────┐ ┌──────────────┐
+                    │     │Process  │ │Process  │ │Error: No     │
+                    │     │with     │ │with     │ │LLM Provider  │
+                    │     │Venice   │ │Bankr    │ │Available     │
+                    │     └────┬────┘ └────┬────┘ └──────────────┘
+                    │          │          │
+                    └──────────┴──────────┘
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │ Parse Decision │
+                           │ {action, conf} │
+                           └────────┬────────┘
+                                    │
+                          ┌─────────┴─────────┐
+                          │                   │
+                          ▼                   ▼
+                   ┌────────────┐      ┌────────────┐
+                   │Conf >= 70%?│NO    │ Conf >= 70%│YES
+                   └─────┬──────┘      └─────┬──────┘
+                         │                    │
+                         ▼                    ▼
+                  ┌────────────┐      ┌─────────────┐
+                  │ HOLD       │      │ Valid Trade?│
+                  │ Log & Skip │      └──────┬──────┘
+                  └─────┬──────┘             │
+                        │            ┌────────┴────────┐
+                        │            │                 │
+                        │       ┌────┴────┐    ┌──────┴─────┐
+                        │       │BUY?      │NO  │SELL?        │YES
+                        │       └────┬─────┘    └──────┬─────┘
+                        │            │                 │
+                        │            ▼                 ▼
+                        │      ┌───────────┐    ┌───────────┐
+                        │      │ Check if │    │ Swap WETH │
+                        │      │ SELL?    │    │  ▶ USDC   │
+                        │      └─────┬─────┘    └─────┬─────┘
+                        │            │YES              │
+                        │            ▼                 │
+                        │      ┌───────────┐           │
+                        │      │ Swap USDC│           │
+                        │      │  ▶ WETH  │           │
+                        │      └─────┬─────┘           │
+                        │            │                 │
+                        └────────────┴─────────────────┘
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │ Execute on      │
+                           │   Uniswap       │
+                           └────────┬────────┘
+                                    │
+                          ┌─────────┴─────────┐
+                          │                   │
+                          ▼                   ▼
+                   ┌────────────┐      ┌────────────┐
+                   │   Success? │YES   │   Success? │NO
+                   │            │      │            │
+                   └─────┬──────┘      └─────┬──────┘
+                         │                    │
+                         ▼                    ▼
+                  ┌────────────┐      ┌────────────┐
+                  │ Post ERC-  │      │  Log Error │
+                  │ 8004 Rep.  │      │            │
+                  └─────┬──────┘      └─────┬──────┘
+                        │                    │
+                        └──────────┬─────────┘
+                                   │
+                                   ▼
+                          ┌─────────────────┐
+                          │  Log Activity   │
+                          └────────┬────────┘
+                                   │
+                                   ▼
+                          ┌─────────────────┐
+                          │  Sleep 1 Hour   │
+                          └────────┬────────┘
+                                   │
+                                   └────────▶ (Repeat Cycle)
 ```
 
 ---
@@ -596,100 +778,146 @@ streamlit run streamlit_app.py
 
 ## How It Works
 
-### Trading Cycle
+### Trading Cycle State Machine
 
-```mermaid
-stateDiagram-v2
-    [*] --> ReadingPortfolio
-    ReadingPortfolio --> AnalyzingDecision
-    AnalyzingDecision --> DecisionMade
-    
-    DecisionMade --> HighConfidence: Confidence >= 70%
-    DecisionMade --> LowConfidence: Confidence < 70%
-    
-    HighConfidence --> ExecutingTrade
-    ExecutingTrade --> TradeSuccess: Tx Success
-    ExecutingTrade --> TradeFailed: Tx Failed
-    
-    TradeSuccess --> PostingReputation
-    TradeFailed --> LoggingActivity
-    LowConfidence --> LoggingActivity
-    
-    PostingReputation --> LoggingActivity
-    LoggingActivity --> Sleeping
-    Sleeping --> ReadingPortfolio
-    
-    note right of HighConfidence: BUY or SELL
-    note right of LowConfidence: HOLD
+```
+┌───────────────┐
+│ Start         │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────┐
+│ Read Portfolio │
+└───────┬───────┘
+        │
+        ▼
+┌───────────────────────┐
+│ Analyze & Get Decision│
+└───────┬───────────────┘
+        │
+        ▼
+    ┌───────────────────────┐
+    │ Confidence >= 70%?    │
+    └───────┬───────────────┘
+            │
+    ┌───────┴───────┐
+    │YES           │NO
+    ▼              ▼
+┌──────────┐  ┌──────────┐
+│ BUY/SELL │  │  HOLD    │
+└─────┬────┘  └────┬─────┘
+      │            │
+      ▼            │
+┌──────────┐      │
+│Execute   │      │
+│Trade     │      │
+└─────┬────┘      │
+      │            │
+┌─────┴────┐      │
+│Tx Success│      │
+│or Failed │      │
+└─────┬────┘      │
+      │            │
+      ▼            ▼
+┌──────────────────────┐
+│ Post ERC-8004        │
+│ Reputation (if OK)   │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Log Activity         │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Sleep 1 Hour        │
+└──────────┬───────────┘
+           │
+           └──────▶ (Repeat)
 ```
 
 ### x402 Payment Flow
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant API as FastAPI Server
-    participant LLM as LLM Provider
-
-    Client->>API: POST /trade-signal
-    Client->>API: Header: Authorization: Bearer x402-paid
-    Client->>API: Body: 0.1 USDC
-
-    Note over API: Validate Bearer Token
-
-    alt Valid Payment
-        API->>LLM: Request Trade Signal
-        LLM-->>API: {recommendation, confidence, reasoning}
-        API-->>Client: 200 OK
-        Note over API: Log x402 revenue
-    else Invalid Payment
-        API-->>Client: 402 Payment Required
-    end
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Client    │     │  FastAPI    │     │     LLM     │
+│             │     │   Server    │     │  Provider   │
+└──────┬──────┘     └──────┬──────┘     └──────┬──────┘
+       │                   │                   │
+       │ POST /trade-signal│                   │
+       │ + Bearer Token    │                   │
+       │ + 0.1 USDC        │                   │
+       │──────────────────▶│                   │
+       │                   │                   │
+       │                   │ Validate Token    │
+       │                   │─ ─ ─ ─ ─ ─ ─ ─ ─ │
+       │                   │                   │
+       │              ┌────┴────┐              │
+       │              │         │              │
+       │         Valid         Invalid         │
+       │              │         │              │
+       │              ▼         ▼              │
+       │       ┌──────────┐ ┌────────────┐     │
+       │       │ Request  │ │ 402 Error  │     │
+       │       │ Decision │ │ Returned   │     │
+       │       └────┬─────┘ └───────────┘     │
+       │            │                        │
+       │            │  GET Decision          │
+       │            │───────────────────────▶│
+       │            │                        │
+       │            │  {recommendation,     │
+       │            │   confidence}          │
+       │            │◀──────────────────────│
+       │            │                        │
+       │      200 OK Response                │
+       │◀───────────────────────────────────│
+       │            │                        │
 ```
 
-### LLM Fallback Chain
+### LLM Fallback Chain Flow
 
-```mermaid
-flowchart LR
-    A[Trade Decision Request] --> B{Groq Available?}
-    B -->|Yes| C[Process with Groq]
-    B -->|No| D{Venice Available?}
-    
-    D -->|Yes| E[Process with Venice]
-    D -->|No| F{Bankr Available?}
-    
-    F -->|Yes| G[Process with Bankr]
-    F -->|No| H[Error - No Provider]
-    
-    C --> K[Return Decision]
-    E --> K
-    G --> K
-    H --> K
 ```
-
-```mermaid
-sequenceDiagram
-    participant Agent as VeilTrader AI
-    participant Groq as Groq API
-    participant Venice as Venice API
-    participant Bankr as Bankr API
-
-    Agent->>Groq: Request Decision
-    Groq-->>Agent: Response ✓
-    
-    Note over Agent: Success - Use Groq
-
-    Note over Agent: If Groq fails:
-    Agent->>Venice: Request Decision
-    Venice-->>Agent: Response ✓
-    
-    Note over Agent: Success - Use Venice
-
-    Note over Agent: If Venice fails:
-    Agent->>Bankr: Request Decision
-    Bankr-->>Agent: Response ✓
-    
-    Note over Agent: Success - Use Bankr
+                    ┌─────────────────────┐
+                    │  Trade Decision     │
+                    │     Request         │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │  Groq Available?    │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    │YES                 │NO
+                    ▼                     ▼
+           ┌────────────────┐    ┌─────────────────────┐
+           │ Process with   │    │Venice Available?    │
+           │    Groq        │    └──────────┬──────────┘
+           └───────┬────────┘               │
+                   │            ┌───────────┴───────────┐
+                   │            │YES                   │NO
+                   │            ▼                       ▼
+                   │   ┌────────────────┐    ┌─────────────────────┐
+                   │   │ Process with   │    │ Bankr Available?     │
+                   │   │   Venice       │    └──────────┬──────────┘
+                   │   └───────┬────────┘               │
+                   │           │            ┌─────────────┴────────────┐
+                   │           │            │YES                     │NO
+                   │           │            ▼                         ▼
+                   │           │   ┌────────────────┐    ┌────────────────────┐
+                   │           │   │ Process with   │    │ Raise RuntimeError │
+                   │           │   │    Bankr       │    │ "No LLM Provider"  │
+                   │           │   └───────┬────────┘    └────────────────────┘
+                   │           │           │
+                   │           │           │
+                   └───────────┼───────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Return Decision     │
+                    │  to Caller          │
+                    └─────────────────────┘
 ```
 
 ---
