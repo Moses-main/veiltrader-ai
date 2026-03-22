@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+time.sleep(3)
+
 from core import get_trading_decision, get_portfolio_summary
 from uniswap_executor import UniswapExecutor
 from reputation_manager import post_trade_reputation
