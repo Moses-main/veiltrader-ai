@@ -90,6 +90,223 @@ VeilTrader AI is designed for hackathons and real-world DeFi trading scenarios w
 
 ---
 
+## Synthesis Hackathon Tracks
+
+VeilTrader AI implements **7+ tracks** from the Synthesis hackathon, demonstrating comprehensive integration with partner infrastructure:
+
+---
+
+### 1. Synthesis Open Track
+
+The Open Track is a shared prize across the whole event, focused on projects that align with all agentic judge values.
+
+**Implementation:**
+- Fully autonomous DeFi trading agent that operates 24/7 without human intervention
+- Complete trade execution pipeline: portfolio analysis → LLM decision → Uniswap swap → reputation posting
+- Verifiable on-chain transaction proofs for all actions
+- Privacy-preserving design with data redaction before LLM analysis
+
+---
+
+### 2. Uniswap — Agentic Finance Track
+
+**Track Focus:** Build AI agents that leverage Uniswap infrastructure for autonomous financial operations.
+
+**Implementation:**
+```python
+# From uniswap_executor.py - Official Uniswap Developer Platform integration
+- Uses trade-api.gateway.uniswap.org for quote generation
+- Supports USDC, WETH, USDT, DAI, wstETH tokens
+- Configurable fee tiers: 0.01%, 0.05%, 0.3%, 1%
+- Real swap execution via on-chain router: 0x2626664c2603336E57B271c5C0b26F421741e481
+- Multi-network support: Base Mainnet (8453) and Sepolia (84532)
+```
+
+**Key Features:**
+- Direct API integration for price quotes
+- Transaction building and signing
+- Slippage protection (1% max)
+- Single direct swap execution per cycle
+
+---
+
+### 3. Venice — Private Agents, Trusted Actions Track
+
+**Track Focus:** Build agents that leverage Venice's privacy-first LLM infrastructure.
+
+**Implementation:**
+```python
+# From llm_brain.py - Venice as secondary LLM provider
+providers = [
+    ("groq", env("GROQ_API_KEY"), ...),
+    ("venice", env("VENICE_API_KEY"), env("VENICE_MODEL", "llama-3.3-70b")),
+    ...
+]
+```
+
+**Privacy Features:**
+- Portfolio data redacted before LLM analysis (wallet addresses masked)
+- No raw wallet addresses logged
+- Session-based processing only
+- Venice as fallback with no-data-retention policy
+
+---
+
+### 4. Bankr — Best LLM Gateway Track
+
+**Track Focus:** Build agents with intelligent LLM routing and fallback mechanisms.
+
+**Implementation:**
+```python
+# Multi-provider fallback chain
+providers = [
+    ("groq", env("GROQ_API_KEY"), ...),      # Primary
+    ("venice", env("VENICE_API_KEY"), ...),  # Secondary
+    ("bankr", env("BANKR_API_KEY"), ...),    # Tertiary
+]
+```
+
+**Gateway Features:**
+- Automatic failover when primary provider fails
+- Error collection and reporting
+- Graceful degradation
+- Consistent response normalization across providers
+
+---
+
+### 5. Protocol Labs — Agents With Receipts (ERC-8004) Track
+
+**Track Focus:** Build agents that post verifiable receipts/proofs to ERC-8004 Reputation Registry.
+
+**Implementation:**
+```python
+# From reputation_manager.py - ERC-8004 integration
+- Identity Registration: register_agent.py
+- Reputation Updates: reputation_manager.py
+- Rating System: 2-5 scale with P&L tracking
+- Transaction Proofs: Hash verification on-chain
+```
+
+**ERC-8004 Features:**
+- On-chain identity registration
+- Post-trade feedback posting
+- Reputation score tracking
+- Verifiable transaction receipts
+- Identity Registry: `0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`
+- Reputation Registry: `0x8004BAa17C55a88189AE136b182e5fdA19dE9b63`
+
+---
+
+### 6. Protocol Labs — Let the Agent Cook Track
+
+**Track Focus:** Build agents that demonstrate autonomous capability and "living forever" infrastructure.
+
+**Implementation:**
+- Self-sustaining autonomous operation after one-time setup
+- Hourly trading cycle with no human intervention
+- Emergency stop flag for safety
+- LIDO Treasury Mode for yield-preserving strategies
+- Agent registration with unique identity
+- Continuous operation framework
+
+---
+
+### 7. Base — Self-Sustaining Autonomous Agents Track
+
+**Track Focus:** Build autonomous agents native to Base network.
+
+**Implementation:**
+```python
+# Network Configuration from common.py
+NETWORKS = {
+    "mainnet": {"chain_id": 8453, "rpc": "https://mainnet.base.org", ...},
+    "sepolia": {"chain_id": 84532, "rpc": "https://sepolia.base.org", ...}
+}
+```
+
+**Base-Native Features:**
+- Built on Base L2 for low gas fees
+- Ethereum-equivalent EVM for compatibility
+- Native USDC and WETH support
+- Sepolia testnet for development
+- Coinbase-backed infrastructure
+
+---
+
+### 8. x402 — Agent Commerce Track
+
+**Track Focus:** Enable agent-to-agent payments and micropayments.
+
+**Implementation:**
+```python
+# From main.py - x402 payment service
+@app.post("/trade-signal")
+async def trade_signal(authorization: str = Header(None)):
+    # Bearer token authentication
+    # $0.1 USDC per trade signal
+    # Revenue tracking and logging
+```
+
+**Commerce Features:**
+- Paid `/trade-signal` endpoint with x402 authentication
+- Revenue logging for agent earnings
+- Bearer token validation
+- Paid client access to trade recommendations
+
+---
+
+### Track Implementation Matrix
+
+| Track | Implementation | Files |
+|-------|----------------|-------|
+| Synthesis Open | Full autonomous agent | `main.py`, `core.py` |
+| Uniswap Agentic Finance | Swap execution | `uniswap_executor.py` |
+| Venice Privacy | LLM provider | `llm_brain.py` |
+| Bankr LLM Gateway | Fallback routing | `llm_brain.py` |
+| ERC-8004 Receipts | Reputation posting | `reputation_manager.py`, `register_agent.py` |
+| Let Agent Cook | Self-sustaining ops | `main.py` (hourly loop) |
+| Base Native | Network integration | `common.py` |
+| x402 Commerce | Payment endpoint | `main.py` |
+
+---
+
+### Technical Architecture for Tracks
+
+```mermaid
+flowchart TB
+    subgraph Synthesis["Synthesis Tracks"]
+        Open[Open Track]
+        Uni[Uniswap]
+        Venice[Venice]
+        Bankr[Bankr]
+        ERC8004[ERC-8004]
+        Cook[Let Agent Cook]
+        Base[Base]
+        X402[x402]
+    end
+
+    subgraph Implementation
+        main["main.py<br/>Hourly Loop + API"]
+        core["core.py<br/>Business Logic"]
+        llm["llm_brain.py<br/>Multi-Provider LLM"]
+        swap["uniswap_executor.py<br/>Uniswap V3"]
+        rep["reputation_manager.py<br/>ERC-8004"]
+        reg["register_agent.py<br/>Identity"]
+    end
+
+    Open --> main
+    Uni --> swap
+    Venice --> llm
+    Bankr --> llm
+    ERC8004 --> rep
+    ERC8004 --> reg
+    Cook --> main
+    Base --> common
+    X402 --> main
+```
+
+---
+
 ## Architecture
 
 ```mermaid
