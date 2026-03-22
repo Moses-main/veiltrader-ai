@@ -1,4 +1,4 @@
-"""Privacy-first LLM routing with a deterministic fallback policy."""
+"""Privacy-first LLM routing with Grok as primary provider."""
 
 from __future__ import annotations
 
@@ -68,41 +68,14 @@ def _normalize(raw: dict[str, Any], provider: str) -> dict[str, Any]:
     }
 
 
-def _local_policy(summary: str) -> dict[str, Any]:
-    # If no LLM is configured, fail closed unless one asset concentration is extreme.
-    if "USDC" in summary and "WETH" not in summary:
-        return {
-            "action": "BUY",
-            "token_in": "USDC",
-            "token_out": "WETH",
-            "amount_pct": 1.0,
-            "fee": 500,
-            "confidence": 72,
-            "rationale": "Failsafe rebalance from all-cash tracked portfolio.",
-        }
-    if "WETH" in summary and "USDC" not in summary:
-        return {
-            "action": "SELL",
-            "token_in": "WETH",
-            "token_out": "USDC",
-            "amount_pct": 1.0,
-            "fee": 500,
-            "confidence": 72,
-            "rationale": "Failsafe rebalance from all-WETH tracked portfolio.",
-        }
-    return {
-        "action": "HOLD",
-        "token_in": "USDC",
-        "token_out": "WETH",
-        "amount_pct": 0.0,
-        "fee": 500,
-        "confidence": 0,
-        "rationale": "No safe edge detected; holding.",
-    }
-
-
 def decide(summary: str) -> dict[str, Any]:
     providers = [
+        (
+            "grok",
+            env("GROK_API_KEY"),
+            env("GROK_MODEL", "grok-4-0709"),
+            "https://api.x.ai/v1/chat/completions",
+        ),
         (
             "groq",
             env("GROQ_API_KEY"),
@@ -122,17 +95,12 @@ def decide(summary: str) -> dict[str, Any]:
             env("BANKR_API_URL", "https://api.bankr.bot/v1/chat/completions"),
         ),
     ]
-    last_error = None
+    errors = []
     for name, key, model, url in providers:
         if not key:
             continue
         try:
             return _normalize(_chat(url, key, model, summary), name)
         except Exception as exc:
-            last_error = f"{name}: {exc}"
-    local = _normalize(_local_policy(summary), "local_failsafe")
-    if last_error:
-        local["rationale"] = (
-            f"{local['rationale']} Gateway fallback after {last_error}"[:280]
-        )
-    return local
+            errors.append(f"{name}: {exc}")
+    raise RuntimeError(f"All LLM providers failed: {'; '.join(errors)}")
