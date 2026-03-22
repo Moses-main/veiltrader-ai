@@ -1,4 +1,4 @@
-"""Privacy-first LLM routing with Grok as primary provider."""
+"""Privacy-first LLM routing with Groq as primary provider."""
 
 from __future__ import annotations
 
@@ -71,16 +71,16 @@ def _normalize(raw: dict[str, Any], provider: str) -> dict[str, Any]:
 def decide(summary: str) -> dict[str, Any]:
     providers = [
         (
-            "grok",
-            env("GROK_API_KEY"),
-            env("GROK_MODEL", "grok-4-0709"),
-            "https://api.x.ai/v1/chat/completions",
-        ),
-        (
             "groq",
             env("GROQ_API_KEY"),
             env("GROQ_MODEL", "llama-3.3-70b-versatile"),
             "https://api.groq.com/openai/v1/chat/completions",
+        ),
+        (
+            "grok",
+            env("GROK_API_KEY"),
+            env("GROK_MODEL", "grok-4-0709"),
+            "https://api.x.ai/v1/chat/completions",
         ),
         (
             "venice",
