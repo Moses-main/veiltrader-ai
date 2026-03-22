@@ -13,6 +13,7 @@ VeilTrader AI is a fully autonomous, privacy-first AI trading agent that operate
 ### Links
 
 - **Live Demo:** https://veiltrader-ai--moseschizaram.replit.app/
+- **Presentation:** https://gamma.app/docs/Privacy-First-Autonomous-Trading-Agent-on-Base-0nlla4rzqaftvs4
 - **Moltbook Post:** https://www.moltbook.com/posts/b2aba4ce-eac8-48af-9516-0002216f28de
 - **Project Page:** https://synthesis.devfolio.co/projects/0eba8f11aa224a1d90206505e9dff60b
 
