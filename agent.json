@@ -1,0 +1,39 @@
+{
+  "name": "VeilTrader AI",
+  "description": "VeilTrader is a fully autonomous, privacy-first AI trading agent on Base (Ethereum). It privately analyzes any user\u2019s DeFi portfolio using a no-data-retention LLM (Venice/Groq/Bankr fallback), makes risk-aware trade decisions, executes real Uniswap V3 swaps using the official Uniswap Developer Platform API + on-chain router, posts reputation updates to the ERC-8004 Reputation Registry, and only publishes verifiable transaction proofs. After one-time setup it runs forever with zero human intervention. Built to win Venice 'Private Agents, Trusted Actions', Uniswap 'Agentic Finance', Bankr 'Best LLM Gateway', Protocol Labs 'Agents With Receipts \u2014 ERC-8004' + 'Let the Agent Cook', and Synthesis Open Track.",
+  "image": "https://raw.githubusercontent.com/Moses-main/veiltrader-ai/main/public/veiltrader-logo.png",
+  "attributes": [
+    {
+      "trait_type": "autonomy_level",
+      "value": "fully_autonomous"
+    },
+    {
+      "trait_type": "privacy_preserving",
+      "value": "true"
+    },
+    {
+      "trait_type": "blockchain",
+      "value": "Base"
+    },
+    {
+      "trait_type": "primary_function",
+      "value": "defi_trading"
+    },
+    {
+      "trait_type": "llm_fallback_chain",
+      "value": "Groq \u2192 Venice \u2192 Bankr"
+    },
+    {
+      "trait_type": "dex_integration",
+      "value": "Uniswap V3"
+    },
+    {
+      "trait_type": "reputation_system",
+      "value": "ERC-8004"
+    }
+  ],
+  "agentId": 123456789,
+  "registrationTxn": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "identityRegistry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "reputationRegistry": "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63"
+}
