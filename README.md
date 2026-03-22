@@ -12,8 +12,8 @@ VeilTrader AI is a fully autonomous, privacy-first AI trading agent that operate
 
 ### Links
 
+- **Live Demo:** https://veiltrader-ai--moseschizaram.replit.app/
 - **Moltbook Post:** https://www.moltbook.com/posts/b2aba4ce-eac8-48af-9516-0002216f28de
-- **Live Demo:** https://veiltrader-ai-f028.onrender.com
 - **Project Page:** https://synthesis.devfolio.co/projects/0eba8f11aa224a1d90206505e9dff60b
 
 ---
@@ -59,7 +59,7 @@ VeilTrader AI is designed for hackathons and real-world DeFi trading scenarios w
 ### Core Features
 
 - **LLM-Powered Decision Making**
-  - Privacy-first LLM with Groq → Venice → Bankr → Ollama → Demo fallback chain
+  - Privacy-first LLM with Groq → Venice → Bankr fallback chain
   - Risk-aware trading decisions with confidence scoring
   - No data retention policies from provider chain
 
@@ -91,68 +91,95 @@ VeilTrader AI is designed for hackathons and real-world DeFi trading scenarios w
 
 ## Architecture
 
+```mermaid
+graph TB
+    subgraph Client["Client Layer"]
+        WEB[("Web App<br/>veiltrader-ai.replit.app")]
+        PAID[("Paid Client<br/>$0.1 USDC")]
+    end
+
+    subgraph Core["VeilTrader AI Core"]
+        MAIN["main.py<br/>FastAPI + x402 Service"]
+        CORE["core.py<br/>Trading Logic"]
+        
+        subgraph Modules["Agent Modules"]
+            LLM["llm_brain.py<br/>Decision Engine"]
+            PORTFOLIO["portfolio_reader.py<br/>Balance Reader"]
+            SWAP["uniswap_executor.py<br/>Trade Executor"]
+            REPUTE["reputation_manager.py<br/>ERC-8004"]
+            REGISTER["register_agent.py<br/>Identity"]
+        end
+    end
+
+    subgraph LLM["LLM Providers (Fallback Chain)"]
+        GROQ["Groq<br/>Primary - gsk_ keys"]
+        VENICE["Venice<br/>Fallback"]
+        BANKR["Bankr<br/>Fallback"]
+    end
+
+    subgraph Blockchain["Base Network"]
+        UNI["Uniswap V3<br/>Swap Router"]
+        ERC8004["ERC-8004<br/>Reputation Registry"]
+        USDC["USDC Token"]
+        WETH["WETH Token"]
+    end
+
+    WEB -->|"Portfolio Query"| MAIN
+    PAID -->|"POST /trade-signal| MAIN
+    
+    MAIN --> CORE
+    CORE --> LLM
+    CORE --> PORTFOLIO
+    CORE --> SWAP
+    CORE --> REPUTE
+    
+    LLM --> GROQ
+    LLM --> VENICE
+    LLM --> BANKR
+    
+    SWAP --> UNI
+    SWAP --> USDC
+    SWAP --> WETH
+    
+    REPUTE --> ERC8004
+    REGISTER --> ERC8004
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              VELTRADER AI                                  │
-│                    Autonomous Trading Agent System                          │
-└─────────────────────────────────────────────────────────────────────────────┘
 
-                                ┌─────────────────┐
-                                │   MAIN.PY       │
-                                │  Entry Point    │
-                                │  ┌───────────┐  │
-                                │  │ FastAPI   │  │
-                                │  │ x402 Svc  │  │
-                                │  └───────────┘  │
-                                │  ┌───────────┐  │
-                                │  │ Hourly    │  │
-                                │  │ Loop      │  │
-                                │  └───────────┘  │
-                                └────────┬────────┘
-                                         │
-                    ┌────────────────────┼────────────────────┐
-                    │                    │                    │
-                    ▼                    ▼                    ▼
-           ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-           │   CORE.PY    │     │    LOGS      │     │   FASTAPI    │
-           │              │     │              │     │  /trade-signal│
-           │ ┌──────────┐ │     │ agent_log.json│     └──────┬───────┘
-           │ │LLMBrain  │ │     └──────────────┘             │
-           │ └──────────┘ │                                   │
-           │ ┌──────────┐ │                                   │
-           │ │Portfolio │ │                                   │
-           │ │ Reader   │ │                                   │
-           │ └──────────┘ │                                   │
-           └──────┬───────┘                                   │
-                  │                                           │
-    ┌─────────────┼─────────────┐                             │
-    │             │             │                             │
-    ▼             ▼             ▼                             │
-┌────────┐  ┌──────────┐  ┌──────────┐                  ┌────────────┐
-│ Groq   │  │ Venice   │  │ Bankr   │                  │ Paid Client│
-│ (LLM)  │  │ (LLM)    │  │ (LLM)   │                  │ ($0.1 USDC)│
-└────────┘  └──────────┘  └──────────┘                  └────────────┘
+### Component Flow
 
-                         EXECUTION LAYER
-    ┌──────────────────────────────────────────────────────┐
-    │                                                      │
-    ▼                                                      ▼
-┌──────────────────┐                          ┌──────────────────┐
-│ UNISWAP EXECUTOR │                          │ REPUTATION MGR   │
-│                  │                          │                  │
-│ • Get Quote      │                          │ • ERC-8004       │
-│ • Sign Tx        │                          │ • Post Feedback  │
-│ • Execute Swap   │                          │ • Rating 2-5     │
-└────────┬─────────┘                          └────────┬─────────┘
-         │                                             │
-         ▼                                             ▼
-┌──────────────────┐                          ┌──────────────────┐
-│  BASE NETWORK    │                          │  ERC-8004        │
-│                  │                          │  REGISTRY        │
-│ • Uniswap V3    │                          │                  │
-│ • USDC/WETH     │                          │ • Identity       │
-│ • 8453/84532    │                          │ • Reputation     │
-└──────────────────┘                          └──────────────────┘
+```mermaid
+flowchart LR
+    subgraph Input
+        A[Portfolio Data]
+        B[LLM Query]
+    end
+
+    subgraph Process
+        C[Read On-Chain]
+        D[Redact Data]
+        E[LLM Decision]
+        F[Validate Trade]
+        G[Execute Swap]
+        H[Post Reputation]
+    end
+
+    subgraph Output
+        I[Transaction Hash]
+        J[Reputation Update]
+        K[Activity Log]
+    end
+
+    A --> C
+    B --> D
+    C --> D
+    D --> E
+    E --> F
+    F -->|Valid| G
+    F -->|Invalid| K
+    G --> H
+    G --> I
+    H --> J
+    H --> K
 ```
 
 ### System Flow
@@ -406,24 +433,45 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    A[Request] --> B{Groq Available?}
-    B -->|Yes| C[Use Groq]
+    A[Trade Decision Request] --> B{Groq Available?}
+    B -->|Yes| C[Process with Groq]
     B -->|No| D{Venice Available?}
     
-    D -->|Yes| E[Use Venice]
+    D -->|Yes| E[Process with Venice]
     D -->|No| F{Bankr Available?}
     
-    F -->|Yes| G[Use Bankr]
-    F -->|No| H{Ollama Available?}
-    
-    H -->|Yes| I[Use Ollama]
-    H -->|No| J[Demo Mode]
+    F -->|Yes| G[Process with Bankr]
+    F -->|No| H[Error - No Provider]
     
     C --> K[Return Decision]
     E --> K
     G --> K
-    I --> K
-    J --> K
+    H --> K
+```
+
+```mermaid
+sequenceDiagram
+    participant Agent as VeilTrader AI
+    participant Groq as Groq API
+    participant Venice as Venice API
+    participant Bankr as Bankr API
+
+    Agent->>Groq: Request Decision
+    Groq-->>Agent: Response ✓
+    
+    Note over Agent: Success - Use Groq
+
+    Note over Agent: If Groq fails:
+    Agent->>Venice: Request Decision
+    Venice-->>Agent: Response ✓
+    
+    Note over Agent: Success - Use Venice
+
+    Note over Agent: If Venice fails:
+    Agent->>Bankr: Request Decision
+    Bankr-->>Agent: Response ✓
+    
+    Note over Agent: Success - Use Bankr
 ```
 
 ---
